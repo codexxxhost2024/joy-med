@@ -3,65 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Make sure title is appropriate -->
     <title>Joy - Voice Assistant</title>
+    <!-- Icons and Fonts -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" />
-    <!-- We will heavily modify or replace style.css -->
+
+    <!-- Link Original CSS first (important for fallback/base styles) -->
     <link rel="stylesheet" href="css/style.css">
-    <!-- Add a new CSS file for the voice UI styles, or modify style.css heavily -->
+
+    <!-- Link NEW Voice UI CSS second (to override original styles) -->
     <link rel="stylesheet" href="css/voice-ui-style.css">
 </head>
-<!-- Add a class to body to help target styles -->
+<!-- Add class to activate new styles -->
 <body class="voice-ui-active">
+
+    <!-- Main App Container -->
     <div id="app">
-        <!-- Timer (Will be positioned with CSS) -->
-        <div id="voice-timer" class="voice-timer-display">00:00 / 00:00</div>
 
-        <!-- Connect Button (Will be positioned with CSS) -->
-        <!-- We take it out of the original header for easier positioning -->
-        <button id="connect-button" class="primary-button voice-ui-connect">
-            <span class="material-symbols-outlined">wifi</span>
-            <span>Connect</span>
-        </button>
+        <!-- Top Area: Timer and Connect Button -->
+        <div class="voice-ui-top-bar">
+            <div id="voice-timer" class="voice-timer-display">00:00 / 00:00</div>
+            <!-- Connect Button - Moved here for specific layout -->
+            <button id="connect-button" class="primary-button voice-ui-connect">
+                <span class="material-symbols-outlined">wifi</span>
+                <span>Connect</span>
+            </button>
+        </div>
 
-        <!-- Central Area -->
+        <!-- Central Area: Visualizer and Status -->
         <div class="voice-ui-center">
             <div id="voice-visualizer-circle" class="visualizer-circle">
-                <!-- This could potentially contain or be linked to your audio visualizer logic -->
+                <!-- Visualizer content can be added/animated by JS -->
             </div>
             <div id="voice-status-text" class="status-text">Listening...</div>
         </div>
 
-        <!-- Bottom Controls -->
+        <!-- Bottom Controls Area -->
         <div class="voice-ui-controls">
-            <button id="voice-settings-button" class="icon-button voice-control-button">
+            <button id="voice-settings-button" class="icon-button voice-control-button settings">
                 <span class="material-symbols-outlined">tune</span> <!-- Settings Icon -->
             </button>
             <button id="voice-cancel-button" class="icon-button voice-control-button cancel">
                 <span class="material-symbols-outlined">close</span> <!-- Cancel Icon -->
             </button>
-            <!-- IMPORTANT: Keep the original mic button ID for JS functionality -->
+            <!-- IMPORTANT: Use the original ID for the microphone button -->
             <button id="mic-button" class="icon-button voice-control-button mic">
                 <span id="mic-icon" class="material-symbols-outlined">mic</span> <!-- Mic Icon -->
             </button>
         </div>
 
-        <!-- Keep Original Hidden Elements if needed for JS, hide with CSS -->
-        <div style="display: none;">
-            <!-- Put the original header, config panel, main content, etc. here -->
-            <!-- This ensures JS targeting them doesn't break, but they aren't visible -->
-            <header class="app-header">...</header>
-            <div id="config-container">...</div>
-            <main class="main-content">...</main>
-            <div id="video-container">...</div>
-            <div id="screen-container">...</div>
+        <!-- Keep Original Hidden Elements if needed for JS functionality -->
+        <!-- These are hidden by the new CSS but keep IDs available for JS -->
+        <div class="original-elements-hidden">
+            <header class="app-header">
+                <!-- Original header content can go here if needed by JS -->
+                <div class="logo">
+                    <div class="logo-icon">
+                       <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1000112684-clzTv3Nsr2qAjAr1cZX5S4nc8Y5tV6.png" alt="Aitek Software" class="aitek-logo">
+                    </div>
+                    <h1>Joy</h1>
+                 </div>
+                 <div class="header-controls">
+                    <!-- Original header controls if needed -->
+                 </div>
+            </header>
+            <div id="config-container" class="hidden-mobile">
+                <!-- Original config panel content -->
+            </div>
+            <main class="main-content">
+                 <!-- Original main content like logs, inputs etc. -->
+                <div class="chat-interface">
+                    <div class="logs-wrapper">
+                        <div id="logs-container"></div>
+                    </div>
+                    <div class="input-controls">
+                        <input type="text" id="message-input" placeholder="Type your message here...">
+                    </div>
+                    <!-- Add other original elements as needed -->
+                </div>
+            </main>
+            <div id="video-container" style="display: none;"></div>
+            <div id="screen-container" style="display: none;"></div>
         </div>
 
-    </div>
-    <!-- Keep your original JS file -->
+    </div><!-- End #app -->
+
+    <!-- Original JavaScript File -->
     <script src="js/main.js" type="module"></script>
-    <!-- You might need a small JS script to update the timer/status -->
-    <script src="js/voice-ui-update.js"></script>
+    <!-- Optional JS for updating timer/status dynamically -->
+    <!-- <script src="js/voice-ui-update.js"></script> -->
+
 </body>
 </html>
