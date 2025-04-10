@@ -1,4 +1,4 @@
-l/* Ensure dark theme is applied */
+/* Ensure dark theme is applied */
 body.voice-ui-active {
   background-color: #0f0f13; /* Dark background */
   color: #f0f0f0;
