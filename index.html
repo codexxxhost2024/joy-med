@@ -3,243 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Joy - Voice Interface v2</title>
+    <title>Kapwa - Your Intelligent Chat Companion</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" />
-
-    <style>
-        /* --- Base Styles --- */
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: #0f0f13;
-            font-family: "Plus Jakarta Sans", sans-serif;
-        }
-
-        /* --- Visual Overlay Layer --- */
-        #voice-ui-visual-layer {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: #0f0f13; /* Solid dark background */
-            z-index: 10; /* Sits above iframe, below promoted buttons */
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
-            box-sizing: border-box;
-            color: #f0f0f0;
-            pointer-events: none; /* Clicks pass through overlay visuals */
-        }
-
-        /* Overlay Content Styling (Timer, Circle, Status, Fake Buttons) */
-        .voice-overlay-top { width: 100%; display: flex; justify-content: center; margin-top: 10px; }
-        #overlay-timer { background-color: rgba(40, 40, 45, 0.8); color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; text-align: center; min-width: 100px; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .voice-overlay-center { display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; }
-        #overlay-visualizer-circle { width: clamp(180px, 40vw, 250px); height: clamp(180px, 40vw, 250px); border-radius: 50%; background-image: radial-gradient(circle, rgba(173, 216, 230, 0.7) 0%, rgba(100, 149, 237, 0.5) 50%, rgba(138, 43, 226, 0.3) 100%), linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0.05) 100%), url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" opacity="0.04"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noise)"/></svg>'); background-blend-mode: overlay, normal; box-shadow: 0 0 30px rgba(173, 216, 230, 0.4); margin-bottom: 25px; border: 1px solid rgba(255, 255, 255, 0.1); }
-        #overlay-status-text { color: #a0a0a0; font-size: 1rem; margin-top: 10px; }
-        .voice-overlay-controls { display: flex; justify-content: center; align-items: center; gap: 25px; width: 100%; padding-bottom: 30px; }
-        .overlay-control-button { background-color: rgba(40, 40, 45, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); }
-        .overlay-control-button .material-symbols-outlined { font-size: 28px; }
-        .overlay-control-button.overlay-cancel { background-color: rgba(234, 67, 53, 0.7); border-color: rgba(234, 67, 53, 0.6); }
-        .overlay-control-button.overlay-mic { opacity: 0.8; /* Fake mic slightly transparent */ }
-
-        /* --- iFrame Styling --- */
-        #original-app-iframe {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-            z-index: 1; /* Sits underneath everything initially */
-            /* --- Make iframe background transparent --- */
-            /* Allows overlay background to show through */
-            color-scheme: dark; /* Hint for transparency */
-            background-color: transparent !important;
-            /* --- Hide scrollbars if they appear --- */
-             overflow: hidden !important;
-        }
-
-        /* --- Styling added BY JAVASCRIPT to the IFRAME'S buttons --- */
-        /* These classes will be added dynamically */
-        .promoted-button {
-            position: fixed !important; /* Position relative to viewport */
-            z-index: 11 !important; /* IMPORTANT: Above the overlay */
-            pointer-events: auto !important; /* Ensure clickable */
-            transform: none !important; /* Reset transforms */
-            opacity: 1 !important; /* Ensure visible */
-            visibility: visible !important;
-        }
-
-        .promoted-connect-button {
-            /* Positioning for Connect Button */
-            top: 35px !important;
-            right: 30px !important;
-            /* Use original button styles or override if needed */
-        }
-
-        .promoted-mic-button {
-            /* Positioning for Mic Button */
-            bottom: 40px !important;
-            left: 50% !important;
-            /* Adjusting to visually align OVER the fake mic button's position */
-            /* Calculation: -50% centers it, + fake_button_width + half_gap moves right */
-            transform: translateX(calc(-50% + 60px + 12.5px)) !important;
-
-            /* Re-style to look like the overlay buttons */
-            background-color: rgba(40, 40, 45, 0.8) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            color: #fff !important;
-            width: 60px !important;
-            height: 60px !important;
-            border-radius: 50% !important;
-            display: flex !important;
-            justify-content: center !important;
-            align-items: center !important;
-            padding: 0 !important;
-            backdrop-filter: blur(5px) !important;
-            -webkit-backdrop-filter: blur(5px) !important;
-            box-shadow: none !important;
-            transition: background-color 0.2s ease, transform 0.2s ease !important;
-        }
-        .promoted-mic-button:hover {
-           background-color: rgba(60, 60, 65, 0.9) !important;
-           transform: translateX(calc(-50% + 60px + 12.5px)) translateY(-2px) !important; /* Keep horizontal transform */
-        }
-        /* Active state styling is handled by original CSS/JS inside iframe, but we ensure base style matches */
-        /* Hide original label inside iframe's mic button */
-        .promoted-mic-button .button-label {
-            display: none !important;
-        }
-        .promoted-mic-button .material-symbols-outlined {
-             font-size: 28px !important;
-             margin: 0 !important;
-        }
-
-    </style>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <div id="app">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1000112684-clzTv3Nsr2qAjAr1cZX5S4nc8Y5tV6.png" alt="Aitek Software" class="aitek-logo">
+                </div>
+                <h1>Joy</h1>
+            </div>
+            <div class="header-controls">
+                <button id="theme-toggle" class="icon-button" title="Toggle theme">
+                    <span class="material-symbols-outlined hide-text">light_mode</span>
+                </button>
+                <!-- Settings button with cover -->
+                <div class="settings-container">
+                    <button id="config-toggle" class="icon-button" title="Settings">
+                        <span class="material-symbols-outlined">settings</span>
+                    </button>
+                    <!-- This div covers the settings button -->
+                    <div class="settings-cover"></div>
+                </div>
+                <button id="connect-button" class="primary-button">
+                    <span class="material-symbols-outlined">wifi</span>
+                    <span>Connect</span>
+                </button>
+            </div>
+        </header>
 
-    <!-- 1. Visual Overlay Layer (Sits visually on top, but below promoted buttons) -->
-    <div id="voice-ui-visual-layer">
-        <div class="voice-overlay-top">
-            <div id="overlay-timer">00:00 / 00:00</div>
+        <!-- Configuration Panel (Hidden by default on mobile) -->
+        <div id="config-container" class="hidden-mobile">
+            <div class="config-header">
+                <h2>Settings</h2>
+                <button class="close-button icon-button">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="config-wrapper">
+                <div class="preset-sets">
+                    <h3>Quick Presets</h3>
+                    <div class="preset-buttons">
+                        <button class="preset-button" data-preset="friendly">
+                            <div class="preset-icon">
+                                <span class="material-symbols-outlined">sentiment_satisfied</span>
+                            </div>
+                            <div class="preset-content">
+                                <span class="preset-name">Friendly Assistant</span>
+                                <span class="preset-desc">Warm and helpful tone with Aoede's high pitch voice</span>
+                            </div>
+                        </button>
+                        <button class="preset-button" data-preset="professional">
+                            <div class="preset-icon">
+                                <span class="material-symbols-outlined">business_center</span>
+                            </div>
+                            <div class="preset-content">
+                                <span class="preset-name">Professional Expert</span>
+                                <span class="preset-desc">Formal and precise with Charon's voice</span>
+                            </div>
+                        </button>
+                        <button class="preset-button" data-preset="tired">
+                            <div class="preset-icon">
+                                <span class="material-symbols-outlined">bedtime</span>
+                            </div>
+                            <div class="preset-content">
+                                <span class="preset-name">Tired Assistant</span>
+                                <span class="preset-desc">Tired and sleepy with Aoede's low pitch voice</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="config-section">
+                    <label for="voice-select">Voice</label>
+                    <select id="voice-select" class="config-input">
+                        <option value="Puck">Puck (Male)</option>
+                        <option value="Charon">Charon (Male)</option>
+                        <option value="Kore">Kore (Female)</option>
+                        <option value="Fenrir">Fenrir (Male)</option>
+                        <option value="Aoede">Aoede (Female)</option>
+                    </select>
+                </div>
+
+                <div class="config-section">
+                    <label for="sample-rate-input">Sample Rate (Hz)</label>
+                    <div class="sample-rate-container">
+                        <input type="number" id="sample-rate-input" class="config-input" placeholder="Sample Rate (Hz)" min="8000" max="48000" step="1000">
+                        <span class="sample-rate-help">Higher = higher pitch, Lower = lower pitch</span>
+                    </div>
+                </div>
+
+                <div class="config-section">
+                    <label for="system-instruction">System Instructions</label>
+                    <textarea id="system-instruction" class="config-input" placeholder="Enter custom system instructions..." rows="5"></textarea>
+                </div>
+
+                <button id="apply-config" class="primary-button">
+                    <span class="material-symbols-outlined">check</span>
+                    Apply Settings
+                </button>
+            </div>
         </div>
-        <div class="voice-overlay-center">
-            <div id="overlay-visualizer-circle"></div>
-            <div id="overlay-status-text">Listening...</div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Chat Interface -->
+            <div class="chat-interface">
+                <!-- Logs Container (Collapsible on mobile) -->
+                <div class="logs-wrapper">
+                    <div class="logs-header">
+                        <span>Chats</span>
+                        <button id="toggle-logs" class="icon-button">
+                            <span class="material-symbols-outlined hide-text">expand_more</span>
+                        </button>
+                    </div>
+                    <div id="logs-container"></div>
+                </div>
+
+                <!-- Audio Visualizers -->
+                <div class="audio-visualizers">
+                    <div class="visualizer-container">
+                        <label>Input Audio</label>
+                        <div id="input-audio-visualizer">
+                            <div class="audio-bar"></div>
+                        </div>
+                    </div>
+                    <div class="visualizer-container">
+                        <label>Output Audio</label>
+                        <div id="audio-visualizer">
+                            <div class="audio-bar"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Controls -->
+                <div class="input-controls">
+                    <div class="input-wrapper">
+                        <input type="text" id="message-input" placeholder="Type your message here...">
+                        <button id="send-button" class="send-button">
+                            <span class="material-symbols-outlined">send</span>
+                        </button>
+                    </div>
+                    <div class="action-buttons">
+                        <button id="mic-button" class="action-button">
+                            <span id="mic-icon" class="material-symbols-outlined">mic</span>
+                            <span class="button-label">Voice</span>
+                        </button>
+                        <button id="camera-button" class="action-button">
+                            <span id="camera-icon" class="material-symbols-outlined">videocam</span>
+                            <span class="button-label">Camera</span>
+                        </button>
+                        <button id="screen-button" class="action-button">
+                            <span id="screen-icon" class="material-symbols-outlined">screen_share</span>
+                            <span class="button-label">Screen</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Video/Screen Preview Containers -->
+        <div id="video-container" style="display: none;">
+            <div class="preview-header">
+                <span>Camera Preview</span>
+                <button id="stop-video" class="icon-button">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <video id="preview" playsinline autoplay muted></video>
         </div>
-        <div class="voice-overlay-controls">
-            <div class="overlay-control-button overlay-settings"><span class="material-symbols-outlined">tune</span></div>
-            <div class="overlay-control-button overlay-cancel"><span class="material-symbols-outlined">close</span></div>
-            <div class="overlay-control-button overlay-mic"><span class="material-symbols-outlined">mic</span></div>
+
+        <div id="screen-container" style="display: none;">
+            <div class="preview-header">
+                <span>Screen Preview</span>
+                <button class="close-button icon-button">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <video id="screen-preview" playsinline autoplay muted></video>
         </div>
     </div>
-
-    <!-- 2. The iFrame loading your original application (Sits underneath) -->
-    <iframe id="original-app-iframe" src="index.html" title="Original Application" allow="microphone; camera; display-capture"></iframe>
-
-    <!-- 3. JavaScript to Manipulate Buttons Inside iFrame -->
-    <script>
-        const iframe = document.getElementById('original-app-iframe');
-        const overlayStatusText = document.getElementById('overlay-status-text');
-        const overlayTimer = document.getElementById('overlay-timer');
-        const overlayCircle = document.getElementById('overlay-visualizer-circle');
-
-        iframe.onload = () => {
-            console.log('iFrame loaded.');
-            try {
-                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-                if (!iframeDoc) {
-                    console.error('Could not access iframe document.');
-                    return;
-                }
-
-                // --- Find and Promote Connect Button ---
-                const connectButton = iframeDoc.getElementById('connect-button');
-                if (connectButton) {
-                    console.log('Connect button found inside iframe.');
-                    connectButton.classList.add('promoted-button', 'promoted-connect-button');
-                    // Optional: Add event listener HERE to update parent UI if needed
-                    connectButton.addEventListener('click', () => {
-                         console.log('Connect button (iframe) clicked via parent listener.');
-                         // Check button state *after* click logic runs in iframe
-                         setTimeout(() => {
-                             const isConnected = connectButton.classList.contains('connected'); // Check class added by iframe's JS
-                             // You could update something in the overlay here based on isConnected
-                         }, 50);
-                    });
-                } else {
-                    console.error('Connect button (#connect-button) not found inside iframe.');
-                }
-
-                // --- Find and Promote Mic Button ---
-                const micButton = iframeDoc.getElementById('mic-button');
-                if (micButton) {
-                    console.log('Mic button found inside iframe.');
-                    micButton.classList.add('promoted-button', 'promoted-mic-button');
-
-                    // Add event listener HERE to update parent overlay UI
-                    micButton.addEventListener('click', () => {
-                         console.log('Mic button (iframe) clicked via parent listener.');
-                         // You could update overlayStatusText or animate overlayCircle here
-                         // Check button state *after* click logic runs in iframe
-                         setTimeout(() => {
-                             const isActive = micButton.classList.contains('active'); // Check class added by iframe's JS
-                             if(isActive) {
-                                 overlayStatusText.textContent = "Listening..."; // Or "Recording"
-                                 // Add animation to overlayCircle if desired
-                             } else {
-                                 overlayStatusText.textContent = "Idle"; // Or similar
-                                 // Remove animation from overlayCircle
-                             }
-                         }, 50);
-                    });
-
-                } else {
-                    console.error('Mic button (#mic-button) not found inside iframe.');
-                }
-
-                // --- Attempt to make iframe background transparent ---
-                // This works best if the iframe's body has no background set
-                 iframeDoc.body.style.backgroundColor = 'transparent';
-                 iframeDoc.documentElement.style.backgroundColor = 'transparent';
-
-
-                // --- Optional: Observe changes inside iframe (Advanced) ---
-                // Example: Update overlay timer based on iframe timer
-                // const targetNode = iframeDoc.getElementById('timer-element-inside-iframe'); // Replace with actual ID
-                // if (targetNode) {
-                //    const observer = new MutationObserver(mutationsList => {
-                //       for(let mutation of mutationsList) {
-                //          if (mutation.type === 'childList' || mutation.type === 'characterData') {
-                //             overlayTimer.textContent = targetNode.textContent;
-                //          }
-                //       }
-                //    });
-                //    observer.observe(targetNode, { characterData: true, childList: true, subtree: true });
-                // }
-
-            } catch (e) {
-                console.error('Error accessing iframe content:', e);
-                // This might happen due to cross-origin restrictions if the iframe src changes later
-                // or sometimes timing issues on load.
-            }
-        };
-
-        // Handle potential errors during iframe loading
-        iframe.onerror = (e) => {
-            console.error('iFrame loading error:', e);
-        };
-
-    </script>
-
+    <script src="js/main.js" type="module"></script>
 </body>
 </html>
