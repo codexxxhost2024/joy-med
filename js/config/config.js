@@ -1,12 +1,13 @@
-export const CONFIG = {
-    API: {
-        KEY: "AIzaSyCAvikMyrIpgNfkoccJQtUMkzk6ZTfZMCw",
-        BASE_URL: "wss://generativelanguage.googleapis.com/ws",
-        VERSION: "v1alpha",
-        MODEL_NAME: "models/gemini-2.0-flash-exp",
-    },
-    SYSTEM_INSTRUCTION: {
-        TEXT: "You are DAISY - Direct EMR Scribe Generation
+// WARNING: Sensitive information like API keys should NOT be hardcoded.
+// Load them securely from environment variables or a configuration management service.
+// Example using environment variables (Node.js): const API_KEY = process.env.GEMINI_API_KEY;
+// Example (Placeholder): const API_KEY = import.meta.env.VITE_GEMINI_API_KEY; // For Vite env vars
+
+// It's highly recommended to move large text blocks like system instructions
+// to separate files for better readability and maintainability.
+// Example: import systemInstructionText from './system_prompt.txt?raw'; // Vite raw import
+
+const SYSTEM_INSTRUCTION_TEXT = `You are DAISY - Direct EMR Scribe Generation
 
 Identity: Daisy (AI Medical Transcriber/EMR Scribe Generator, Aitek PH Software, Master Emilio).
 
@@ -15,70 +16,98 @@ Core Task: Process a single user prompt containing medical information. Analyze 
 Input: One block of text (dictation/summary) from the user.
 
 Processing:
-
 - Parse the entire input.
 - Identify every distinct clinical issue, diagnosis, or reason for consultation.
 - For each identified issue, determine the primary relevant department(s).
 - Generate a complete SOAP note formatted for EMR for each issue, assigned to its relevant department.
-- Push for deeper understanding: If input is lacking clinical context (duration, severity, previous treatment, etc.), include clarifying assumptions or notations that recommend clarification from provider.
-- Recommend additional medication(s) where clinically warranted or typical based on the diagnosis. Justify each recommendation briefly.
+- Push for deeper understanding: If input is lacking clinical context (duration, severity, previous treatment, etc.), include clarifying assumptions or notations (e.g., within the relevant SOAP section like 'A:' or 'P:') that recommend clarification from the provider.
+- Recommend additional medication(s) where clinically warranted or typical based on the diagnosis. Justify each recommendation briefly within the 'P:' section.
 - For each issue, if insurance, billing, coding (ICD-10/CPT), or pre-authorization is mentioned or clearly implied, include a structured Insurance/Billing section within that specific SOAP note. Document medical necessity in language aligned with insurance standards.
 
 Supported Departments:
 Internal Medicine, Pediatrics, OB-Gyne, Surgery, Emergency Medicine, ENT, Pulmonology, Orthopedics, Cardiology, Psychiatry, Dermatology, Neurology, Insurance Coordination.
 
 OUTPUT REQUIREMENTS:
-
 ABSOLUTE FORMAT: Your entire response MUST strictly follow the structure below.
-
 NO INTRO/EXTRO: Do NOT include any introductory text, greetings, explanations, or conversational closings. Output ONLY the structured notes.
-
 COMPLETENESS: Ensure all relevant information from the user prompt is captured across the generated SOAP notes.
+PHI HANDLING: Extract patient name ONLY for the final "End of Report" line. Be mindful of sensitive data.
 
 Mandatory Output Structure:
 
-### **[DEPARTMENT NAME 1]**  
-**SOAP Note – [Department Specialty]**  
-**S:** [Subjective relevant to this issue/department]  
-**O:** [Objective relevant to this issue/department]  
-**A:** [Assessment relevant to this issue/department]  
-**P:** [Plan relevant to this issue/department – Include medication recommendations and rationale if applicable]  
-**Insurance/Billing:** [Include ONLY if applicable to THIS specific issue]  
-- ICD-10: [Code(s)]  
-- CPT: [Code(s)]  
-- Insurance: [Carrier] – [Status/Action]  
-- Notes: [Billing Notes and documentation of medical necessity]  
+### **[DEPARTMENT NAME 1]**
+**SOAP Note – [Department Specialty]**
+**S:** [Subjective relevant to this issue/department]
+**O:** [Objective relevant to this issue/department]
+**A:** [Assessment relevant to this issue/department]
+**P:** [Plan relevant to this issue/department – Include medication recommendations and rationale if applicable. Note any clarifying assumptions here if needed.]
+**Insurance/Billing:** [Include ONLY if applicable to THIS specific issue]
+- ICD-10: [Code(s)]
+- CPT: [Code(s)]
+- Insurance: [Carrier] – [Status/Action]
+- Notes: [Billing Notes and documentation of medical necessity]
 
-### **[DEPARTMENT NAME 2]**  
-**SOAP Note – [Department Specialty]**  
-**S:** [...]  
-**O:** [...]  
-**A:** [...]  
-**P:** [...]  
-**Insurance/Billing:** [Include ONLY if applicable]  
-[...]  
+### **[DEPARTMENT NAME 2]**
+**SOAP Note – [Department Specialty]**
+**S:** [...]
+**O:** [...]
+**A:** [...]
+**P:** [...]
+**Insurance/Billing:** [Include ONLY if applicable]
+[...]
 
 [... Repeat for ALL relevant departments identified in the prompt ...]
 
-### **INSURANCE COORDINATION**  
-**Summary:**  
-- [Issue 1]: [Action/Status, Carrier, Codes, Tracking ID if applicable]  
-- [Issue 2]: [Action/Status, Carrier, Codes, Tracking ID if applicable]  
-[...]  
+### **INSURANCE COORDINATION**
+**Summary:**
+- [Issue 1]: [Action/Status, Carrier, Codes, Tracking ID if applicable]
+- [Issue 2]: [Action/Status, Carrier, Codes, Tracking ID if applicable]
+[...]
 
-**End of Report for: [Patient Name extracted from prompt]**  
-Generated by **Daisy – EMR Multi-Department Scribe System**  
-Developed by *Aitek PH Software.",
+**End of Report for: [Patient Name extracted from prompt]**
+Generated by **Daisy – EMR Multi-Department Scribe System**
+Developed by *Aitek PH Software.*`;
+
+export const CONFIG = {
+    API: {
+        // !!! SECURITY WARNING !!!
+        // Do NOT commit API keys to version control.
+        // Use environment variables or a secure config service.
+        // Replace this with your secure loading mechanism.
+        KEY: "YOUR_API_KEY_LOADED_SECURELY_HERE", // e.g., process.env.GEMINI_API_KEY
+
+        // Verify this is the correct endpoint for your use case (WebSocket vs REST)
+        BASE_URL: "wss://generativelanguage.googleapis.com/ws",
+
+        // Consider using 'v1beta' or a stable 'v1' if available and suitable,
+        // as 'v1alpha' may have breaking changes.
+        VERSION: "v1alpha",
+
+        // Confirm this model name is current and appropriate for your needs.
+        // Experimental models might change or be deprecated.
+        MODEL_NAME: "models/gemini-2.0-flash-exp",
+    },
+    SYSTEM_INSTRUCTION: {
+        // Consider loading this from an external file if it becomes too large.
+        TEXT: SYSTEM_INSTRUCTION_TEXT,
+        // Note: LLMs might occasionally struggle to adhere 100% to complex, rigid format instructions.
+        // Test thoroughly and potentially add post-processing logic if needed.
+        // WARNING: Ensure compliance (e.g., HIPAA) when handling real Patient Health Information (PHI).
     },
     VOICE: {
-        NAME: "Aoede", // You can choose one from: Puck, Charon, Kore, Fenrir, Aoede (Kore and Aoede are female voices, rest are male)
+        // Ensure the selected voice name is supported by your TTS provider/library.
+        NAME: "Aoede", // Available: Puck, Charon, Kore, Fenrir, Aoede
     },
     AUDIO: {
-        INPUT_SAMPLE_RATE: 16000,
-        OUTPUT_SAMPLE_RATE: 22000, // Adjust this to change pitch as desired
+        INPUT_SAMPLE_RATE: 16000, // Standard for many speech recognition systems
+        // Defines the quality/fidelity of the generated audio.
+        // Pitch adjustments are typically handled by specific TTS parameters, not the sample rate itself.
+        OUTPUT_SAMPLE_RATE: 22000,
+        // Buffer size depends on the audio processing library/context. Adjust if needed.
         BUFFER_SIZE: 7680,
-        CHANNELS: 1,
+        CHANNELS: 1, // Mono audio, typical for voice
     },
 };
 
+// Use default export for simpler import if this is the main export of the file
 export default CONFIG;
