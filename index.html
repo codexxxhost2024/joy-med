@@ -187,7 +187,41 @@
             </div>
             <video id="screen-preview" playsinline autoplay muted></video>
         </div>
+    </div> <!-- End of #app -->
+
+    <!-- New Voice Interaction UI (Initially Hidden) -->
+    <div id="voice-interface" class="hidden">
+        <div id="voice-timer" class="glass-effect">00:00 / 03:00</div>
+
+        <div class="voice-main-area">
+            <!-- Large circular visualizer for AI speech -->
+            <div id="output-voice-visualizer">
+                 <!-- Potential inner elements for complex effects if needed -->
+            </div>
+
+            <!-- Input listening indicator -->
+            <div class="input-listening-indicator">
+                <div id="input-dot-visualizer">
+                    <span></span><span></span><span></span><span></span><span></span>
+                </div>
+                <span id="listening-status-text">I'm listening</span>
+            </div>
+        </div>
+
+        <div class="voice-controls">
+            <button id="voice-settings-button" class="voice-control-button" title="Settings">
+                <span class="material-symbols-outlined">tune</span>
+            </button>
+            <button id="voice-stop-button" class="voice-control-button stop" title="Stop">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <button id="voice-mic-toggle-button" class="voice-control-button mic-active" title="Mute/Unmute Mic">
+                <span class="material-symbols-outlined">mic</span>
+                 <!-- Use 'mic_off' when muted -->
+            </button>
+        </div>
     </div>
+
     <script src="js/main.js" type="module"></script>
 </body>
 </html>
