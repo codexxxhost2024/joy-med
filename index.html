@@ -3,191 +3,226 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kapwa - Your Intelligent Chat Companion</title>
+    <title>Joy - Voice Interface</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" />
-    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        /* --- Base Styles for the Wrapper Page --- */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* Prevent scrolling on the wrapper */
+            background-color: #0f0f13; /* Dark background */
+            font-family: "Plus Jakarta Sans", sans-serif;
+        }
+
+        /* --- Visual Overlay Styling --- */
+        #voice-ui-visual-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: transparent; /* Base transparent */
+            z-index: 10; /* Above iframe, below specific controls */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+            color: #f0f0f0;
+            /* Make overlay mostly non-interactive EXCEPT for holes */
+            pointer-events: none;
+        }
+
+        /* --- Overlay Content Styling --- */
+        .voice-overlay-top {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+            position: relative; /* Needed for absolute positioning inside */
+            z-index: 11; /* Above iframe content */
+        }
+
+        #overlay-timer {
+            background-color: rgba(40, 40, 45, 0.8);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            text-align: center;
+            min-width: 100px;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .voice-overlay-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            position: relative;
+            z-index: 11;
+        }
+
+        #overlay-visualizer-circle {
+            width: clamp(180px, 40vw, 250px);
+            height: clamp(180px, 40vw, 250px);
+            border-radius: 50%;
+            background-image: radial-gradient(circle, rgba(173, 216, 230, 0.7) 0%, rgba(100, 149, 237, 0.5) 50%, rgba(138, 43, 226, 0.3) 100%),
+                       linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0.05) 100%),
+                       url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" opacity="0.04"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noise)"/></svg>');
+            background-blend-mode: overlay, normal;
+            box-shadow: 0 0 30px rgba(173, 216, 230, 0.4);
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #overlay-status-text {
+            color: #a0a0a0;
+            font-size: 1rem;
+            margin-top: 10px;
+        }
+
+        .voice-overlay-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 25px;
+            width: 100%;
+            padding-bottom: 30px;
+            position: relative;
+            z-index: 11;
+        }
+
+        /* Fake buttons styling */
+        .overlay-control-button {
+            background-color: rgba(40, 40, 45, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+        .overlay-control-button .material-symbols-outlined {
+            font-size: 28px;
+        }
+        .overlay-control-button.overlay-cancel {
+            background-color: rgba(234, 67, 53, 0.7);
+            border-color: rgba(234, 67, 53, 0.6);
+        }
+        .overlay-control-button.overlay-mic {
+             /* Make the fake mic button slightly transparent so the real one shows through better */
+             opacity: 0.8;
+        }
+
+        /* --- iFrame Styling --- */
+        #original-app-iframe {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none; /* Remove iframe border */
+            z-index: 1; /* Sit underneath the overlay elements */
+            /* Make the iframe background transparent if possible */
+            /* Note: This might not work if the iframe content has its own opaque background */
+            background-color: transparent;
+            opacity: 1; /* Keep the iframe content visible */
+            /* Initially allow clicks through to iframe */
+            pointer-events: auto;
+        }
+
+        /* --- Hole Punching / Button Access --- */
+        /* We need to make the areas of the OVERLAY where the buttons sit TRANSPARENT to clicks */
+        /* This requires knowing the approximate position */
+
+        /* Area for Connect Button (Top Right) */
+        #connect-button-hole {
+            position: absolute;
+            top: 30px; /* Approximate position */
+            right: 25px; /* Approximate position */
+            width: 110px; /* Approximate size */
+            height: 45px; /* Approximate size */
+            z-index: 12; /* Above the overlay's general z-index */
+            pointer-events: auto; /* ALLOW clicks in this specific area */
+             /* background-color: rgba(255, 0, 0, 0.1); /* DEBUG: uncomment to see hole */
+        }
+
+        /* Area for Mic Button (Bottom Center-Right) */
+        #mic-button-hole {
+            position: absolute;
+            bottom: 35px; /* Approximate position */
+            left: 50%; /* Center */
+            transform: translateX(calc(-50% + 60px + 12.5px - 30px)); /* Center the hole over button */
+            /* Calculation: -50% centers, + button_width + half_gap moves right, - half_hole_width centers hole */
+            width: 70px; /* Approximate size (slightly larger than button) */
+            height: 70px; /* Approximate size */
+            z-index: 12; /* Above the overlay's general z-index */
+            pointer-events: auto; /* ALLOW clicks in this specific area */
+            border-radius: 50%; /* Match button shape */
+            /* background-color: rgba(0, 255, 0, 0.1); /* DEBUG: uncomment to see hole */
+        }
+
+    </style>
 </head>
 <body>
-    <div id="app">
-        <!-- Header -->
-        <header class="app-header">
-            <div class="logo">
-                <div class="logo-icon">
-                    <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1000112684-clzTv3Nsr2qAjAr1cZX5S4nc8Y5tV6.png" alt="Aitek Software" class="aitek-logo">
-                </div>
-                <h1>Joy</h1>
-            </div>
-            <div class="header-controls">
-                <button id="theme-toggle" class="icon-button" title="Toggle theme">
-                    <span class="material-symbols-outlined hide-text">light_mode</span>
-                </button>
-                <!-- Settings button with cover -->
-                <div class="settings-container">
-                    <button id="config-toggle" class="icon-button" title="Settings">
-                        <span class="material-symbols-outlined">settings</span>
-                    </button>
-                    <!-- This div covers the settings button -->
-                    <div class="settings-cover"></div>
-                </div>
-                <button id="connect-button" class="primary-button">
-                    <span class="material-symbols-outlined">wifi</span>
-                    <span>Connect</span>
-                </button>
-            </div>
-        </header>
 
-        <!-- Configuration Panel (Hidden by default on mobile) -->
-        <div id="config-container" class="hidden-mobile">
-            <div class="config-header">
-                <h2>Settings</h2>
-                <button class="close-button icon-button">
-                    <span class="material-symbols-outlined">close</span>
-                </button>
-            </div>
-            <div class="config-wrapper">
-                <div class="preset-sets">
-                    <h3>Quick Presets</h3>
-                    <div class="preset-buttons">
-                        <button class="preset-button" data-preset="friendly">
-                            <div class="preset-icon">
-                                <span class="material-symbols-outlined">sentiment_satisfied</span>
-                            </div>
-                            <div class="preset-content">
-                                <span class="preset-name">Friendly Assistant</span>
-                                <span class="preset-desc">Warm and helpful tone with Aoede's high pitch voice</span>
-                            </div>
-                        </button>
-                        <button class="preset-button" data-preset="professional">
-                            <div class="preset-icon">
-                                <span class="material-symbols-outlined">business_center</span>
-                            </div>
-                            <div class="preset-content">
-                                <span class="preset-name">Professional Expert</span>
-                                <span class="preset-desc">Formal and precise with Charon's voice</span>
-                            </div>
-                        </button>
-                        <button class="preset-button" data-preset="tired">
-                            <div class="preset-icon">
-                                <span class="material-symbols-outlined">bedtime</span>
-                            </div>
-                            <div class="preset-content">
-                                <span class="preset-name">Tired Assistant</span>
-                                <span class="preset-desc">Tired and sleepy with Aoede's low pitch voice</span>
-                            </div>
-                        </button>
-                    </div>
-                </div>
+    <!-- 1. The iFrame loading your original application -->
+    <!-- Make sure 'index.html' points to your WORKING original file -->
+    <iframe id="original-app-iframe" src="index.html" title="Original Application"></iframe>
 
-                <div class="config-section">
-                    <label for="voice-select">Voice</label>
-                    <select id="voice-select" class="config-input">
-                        <option value="Puck">Puck (Male)</option>
-                        <option value="Charon">Charon (Male)</option>
-                        <option value="Kore">Kore (Female)</option>
-                        <option value="Fenrir">Fenrir (Male)</option>
-                        <option value="Aoede">Aoede (Female)</option>
-                    </select>
-                </div>
-
-                <div class="config-section">
-                    <label for="sample-rate-input">Sample Rate (Hz)</label>
-                    <div class="sample-rate-container">
-                        <input type="number" id="sample-rate-input" class="config-input" placeholder="Sample Rate (Hz)" min="8000" max="48000" step="1000">
-                        <span class="sample-rate-help">Higher = higher pitch, Lower = lower pitch</span>
-                    </div>
-                </div>
-
-                <div class="config-section">
-                    <label for="system-instruction">System Instructions</label>
-                    <textarea id="system-instruction" class="config-input" placeholder="Enter custom system instructions..." rows="5"></textarea>
-                </div>
-
-                <button id="apply-config" class="primary-button">
-                    <span class="material-symbols-outlined">check</span>
-                    Apply Settings
-                </button>
-            </div>
+    <!-- 2. The Visual Overlay Layer -->
+    <div id="voice-ui-visual-layer">
+        <!-- Overlay Top: Timer -->
+        <div class="voice-overlay-top">
+            <div id="overlay-timer">00:00 / 00:00</div>
         </div>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Chat Interface -->
-            <div class="chat-interface">
-                <!-- Logs Container (Collapsible on mobile) -->
-                <div class="logs-wrapper">
-                    <div class="logs-header">
-                        <span>Chats</span>
-                        <button id="toggle-logs" class="icon-button">
-                            <span class="material-symbols-outlined hide-text">expand_more</span>
-                        </button>
-                    </div>
-                    <div id="logs-container"></div>
-                </div>
-
-                <!-- Audio Visualizers -->
-                <div class="audio-visualizers">
-                    <div class="visualizer-container">
-                        <label>Input Audio</label>
-                        <div id="input-audio-visualizer">
-                            <div class="audio-bar"></div>
-                        </div>
-                    </div>
-                    <div class="visualizer-container">
-                        <label>Output Audio</label>
-                        <div id="audio-visualizer">
-                            <div class="audio-bar"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Input Controls -->
-                <div class="input-controls">
-                    <div class="input-wrapper">
-                        <input type="text" id="message-input" placeholder="Type your message here...">
-                        <button id="send-button" class="send-button">
-                            <span class="material-symbols-outlined">send</span>
-                        </button>
-                    </div>
-                    <div class="action-buttons">
-                        <button id="mic-button" class="action-button">
-                            <span id="mic-icon" class="material-symbols-outlined">mic</span>
-                            <span class="button-label">Voice</span>
-                        </button>
-                        <button id="camera-button" class="action-button">
-                            <span id="camera-icon" class="material-symbols-outlined">videocam</span>
-                            <span class="button-label">Camera</span>
-                        </button>
-                        <button id="screen-button" class="action-button">
-                            <span id="screen-icon" class="material-symbols-outlined">screen_share</span>
-                            <span class="button-label">Screen</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </main>
-
-        <!-- Video/Screen Preview Containers -->
-        <div id="video-container" style="display: none;">
-            <div class="preview-header">
-                <span>Camera Preview</span>
-                <button id="stop-video" class="icon-button">
-                    <span class="material-symbols-outlined">close</span>
-                </button>
-            </div>
-            <video id="preview" playsinline autoplay muted></video>
+        <!-- Overlay Center: Visualizer and Status -->
+        <div class="voice-overlay-center">
+            <div id="overlay-visualizer-circle"></div>
+            <div id="overlay-status-text">Listening...</div>
         </div>
 
-        <div id="screen-container" style="display: none;">
-            <div class="preview-header">
-                <span>Screen Preview</span>
-                <button class="close-button icon-button">
-                    <span class="material-symbols-outlined">close</span>
-                </button>
+        <!-- Overlay Bottom: Fake Controls -->
+        <div class="voice-overlay-controls">
+            <div class="overlay-control-button overlay-settings">
+                <span class="material-symbols-outlined">tune</span>
             </div>
-            <video id="screen-preview" playsinline autoplay muted></video>
+            <div class="overlay-control-button overlay-cancel">
+                <span class="material-symbols-outlined">close</span>
+            </div>
+            <div class="overlay-control-button overlay-mic">
+                <span class="material-symbols-outlined">mic</span>
+            </div>
         </div>
     </div>
-    <script src="js/main.js" type="module"></script>
+
+    <!-- 3. Clickable "Holes" - Divs positioned over the buttons -->
+    <!-- These divs sit *above* the visual overlay layer and allow clicks through to the iframe below -->
+    <div id="connect-button-hole"></div>
+    <div id="mic-button-hole"></div>
+
+    <!-- No separate JS needed for this wrapper file unless you want to animate the overlay -->
+    <script>
+        // Optional: You could add JS here later to update the #overlay-timer
+        // or #overlay-status-text by communicating with the iframe,
+        // or animate the #overlay-visualizer-circle.
+        // For now, we keep it simple.
+    </script>
+
 </body>
 </html>
