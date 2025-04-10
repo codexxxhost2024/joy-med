@@ -1,165 +1,210 @@
-/* Ensure dark theme is applied */
+/* --- Voice UI Specific Styles --- */
+
+/* Apply only when body has the specific class */
 body.voice-ui-active {
-  background-color: #0f0f13; /* Dark background */
-  color: #f0f0f0;
-  font-family: "Plus Jakarta Sans", sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  overflow: hidden; /* Prevent scrollbars */
-  margin: 0;
-  padding: 0;
+  background-color: #0f0f13 !important; /* Force dark background */
+  color: #f0f0f0 !important;
+  font-family: "Plus Jakarta Sans", sans-serif !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  min-height: 100vh !important;
+  height: 100vh !important; /* Ensure full height */
+  overflow: hidden !important; /* Prevent scrolling */
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
-#app {
-  width: 100%;
-  height: 100vh; /* Full viewport height */
-  max-width: 100%; /* Override max-width from original */
-  margin: 0;
-  padding: 20px; /* Add some padding */
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between; /* Pushes timer top, controls bottom */
-  align-items: center;
-  position: relative; /* Needed for absolute positioning of timer/connect */
+/* Reset app container for full screen layout */
+body.voice-ui-active #app {
+  width: 100% !important;
+  height: 100% !important; /* Full viewport height */
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 20px !important; /* Overall padding */
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important; /* Space top, center, bottom */
+  align-items: center !important;
+  position: relative !important;
+  overflow: hidden !important; /* Clip content */
+  background-color: #0f0f13 !important; /* Ensure bg */
 }
 
-/* Hide original complex elements */
-body.voice-ui-active .app-header,
-body.voice-ui-active #config-container,
-body.voice-ui-active .main-content,
+/* Force hide original complex elements */
+body.voice-ui-active .original-elements-hidden,
+body.voice-ui-active .app-header, /* Hide original header */
+body.voice-ui-active #config-container, /* Hide original config */
+body.voice-ui-active .main-content, /* Hide original main */
 body.voice-ui-active #video-container,
 body.voice-ui-active #screen-container,
-body.voice-ui-active .settings-container .settings-cover /* Hide cover */ {
+body.voice-ui-active .settings-container .settings-cover {
   display: none !important;
+  visibility: hidden !important;
+  position: absolute !important; /* Remove from flow */
+  left: -9999px; /* Move offscreen */
 }
 
-/* Timer Styling */
-.voice-timer-display {
-  background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent background */
+/* --- Top Bar Styling --- */
+body.voice-ui-active .voice-ui-top-bar {
+  position: absolute;
+  top: 25px; /* Adjust vertical position */
+  left: 20px;
+  right: 20px;
+  display: flex;
+  justify-content: center; /* Center timer */
+  align-items: center;
+  z-index: 10;
+}
+
+body.voice-ui-active .voice-timer-display {
+  background-color: rgba(40, 40, 45, 0.8); /* Slightly darker semi-transparent background */
   color: #fff;
   padding: 8px 16px;
   border-radius: 20px;
   font-size: 0.9rem;
-  position: absolute;
-  top: 30px; /* Position from top */
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
+  text-align: center;
+  min-width: 100px; /* Ensure some width */
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Connect Button Styling */
-#connect-button.voice-ui-connect {
-    position: absolute;
-    top: 30px;
-    right: 30px;
-    z-index: 10;
-    /* Use original primary-button styles or redefine */
-    padding: 8px 12px;
-    border-radius: 12px;
-    font-size: 0.9rem;
-    gap: 4px;
-    background: linear-gradient(135deg, #4a4a4a, #6a6a6a); /* Example: Greyed out look */
-    color: #e0e0e0;
-    box-shadow: none;
+/* Connect Button Styling & Positioning */
+body.voice-ui-active #connect-button.voice-ui-connect {
+  position: absolute; /* Position relative to top-bar */
+  top: 0; /* Align with timer */
+  right: 0; /* Position to the right */
+  z-index: 11; /* Ensure it's clickable */
+  /* Style overrides */
+  padding: 8px 12px !important;
+  border-radius: 12px !important;
+  font-size: 0.9rem !important;
+  gap: 4px !important;
+  background: linear-gradient(135deg, #4a4a4a, #6a6a6a) !important; /* Default greyed out */
+  color: #e0e0e0 !important;
+  box-shadow: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  cursor: pointer;
 }
-#connect-button.voice-ui-connect.connected {
-    background: linear-gradient(135deg, var(--primary-color), #b388ff); /* Connected style */
-    color: white;
+body.voice-ui-active #connect-button.voice-ui-connect.connected {
+  background: linear-gradient(135deg, var(--primary-color, #7c5cff), #b388ff) !important; /* Connected style */
+  color: white !important;
+  border: none !important;
 }
-#connect-button.voice-ui-connect .material-symbols-outlined {
-    font-size: 1.2rem;
+body.voice-ui-active #connect-button.voice-ui-connect .material-symbols-outlined {
+  font-size: 1.2rem !important;
 }
 
-
-/* Central Area */
-.voice-ui-center {
+/* --- Central Area Styling --- */
+body.voice-ui-active .voice-ui-center {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  flex-grow: 1; /* Takes up space between timer and controls */
+  flex-grow: 1; /* Takes up the middle space */
   width: 100%;
+  padding-top: 60px; /* Add padding to avoid overlap with top bar */
+  padding-bottom: 80px; /* Add padding to avoid overlap with bottom bar */
 }
 
-.visualizer-circle {
-  width: 200px;
-  height: 200px;
+body.voice-ui-active .visualizer-circle {
+  width: clamp(180px, 40vw, 250px); /* Responsive size */
+  height: clamp(180px, 40vw, 250px);
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(173, 216, 230, 0.8) 0%, rgba(100, 149, 237, 0.6) 50%, rgba(138, 43, 226, 0.4) 100%),
-              linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.1) 100%); /* Gradient like image */
-  box-shadow: 0 0 30px rgba(173, 216, 230, 0.5); /* Soft glow */
-  margin-bottom: 20px;
+  /* Combined gradient and noise effect */
+   background-image: radial-gradient(circle, rgba(173, 216, 230, 0.7) 0%, rgba(100, 149, 237, 0.5) 50%, rgba(138, 43, 226, 0.3) 100%),
+              linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0.05) 100%),
+              url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" opacity="0.04"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noise)"/></svg>');
+  background-blend-mode: overlay, normal; /* Blend noise */
+  box-shadow: 0 0 30px rgba(173, 216, 230, 0.4); /* Soft glow */
+  margin-bottom: 25px;
   position: relative;
   overflow: hidden;
-  /* Add noise/texture if possible */
-   background-image: radial-gradient(circle, rgba(173, 216, 230, 0.8) 0%, rgba(100, 149, 237, 0.6) 50%, rgba(138, 43, 226, 0.4) 100%),
-              linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.1) 100%),
-              url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" opacity="0.05"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noise)"/></svg>');
-  background-blend-mode: overlay; /* Blend noise */
-
+  border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
 }
 
-/* You'd need JS to animate this based on audio */
-.visualizer-circle.active {
+body.voice-ui-active .visualizer-circle.active {
   animation: pulse-glow 1.5s infinite ease-in-out;
 }
 
 @keyframes pulse-glow {
-  0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(173, 216, 230, 0.5); }
-  50% { transform: scale(1.05); box-shadow: 0 0 45px rgba(173, 216, 230, 0.7); }
+  0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(173, 216, 230, 0.4); }
+  50% { transform: scale(1.03); box-shadow: 0 0 45px rgba(173, 216, 230, 0.6); }
 }
 
-.status-text {
+body.voice-ui-active .status-text {
   color: #a0a0a0; /* Lighter grey text */
   font-size: 1rem;
   margin-top: 10px; /* Space below circle */
-  /* Add animated ellipsis if needed */
 }
 
-/* Bottom Controls */
-.voice-ui-controls {
+/* --- Bottom Controls Styling --- */
+body.voice-ui-active .voice-ui-controls {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 20px; /* Space between buttons */
+  gap: 25px; /* Space between buttons */
   width: 100%;
-  padding-bottom: 30px; /* Space from bottom */
+  padding: 15px 0 30px 0; /* Padding top/bottom */
+  position: absolute; /* Position at the bottom */
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
 }
 
-.voice-control-button {
-  background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent */
-  border: 1px solid rgba(255, 255, 255, 0.2);
+body.voice-ui-active .voice-control-button {
+  background-color: rgba(40, 40, 45, 0.8); /* Darker semi-transparent */
+  border: 1px solid rgba(255, 255, 255, 0.1);
   color: #fff;
-  width: 60px;
+  width: 60px; /* Button size */
   height: 60px;
-  border-radius: 50%;
+  border-radius: 50%; /* Circular */
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
 }
 
-.voice-control-button:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+body.voice-ui-active .voice-control-button:hover {
+  background-color: rgba(60, 60, 65, 0.9);
+  transform: translateY(-2px); /* Slight lift on hover */
 }
 
-.voice-control-button .material-symbols-outlined {
-  font-size: 28px;
+body.voice-ui-active .voice-control-button .material-symbols-outlined {
+  font-size: 28px !important; /* Ensure icon size */
+  display: block !important; /* Ensure icon displays */
+  line-height: 1 !important;
 }
 
-.voice-control-button.cancel {
-  background-color: rgba(234, 67, 53, 0.6); /* Red tint for cancel */
-  border-color: rgba(234, 67, 53, 0.8);
-}
-.voice-control-button.cancel:hover {
-  background-color: rgba(234, 67, 53, 0.8);
+/* Specific Button Styles */
+body.voice-ui-active .voice-control-button.settings {
+  /* Style for settings if needed */
 }
 
-/* Style mic button specifically if needed */
-.voice-control-button.mic.active {
-   background-color: rgba(124, 92, 255, 0.6); /* Purple tint when active */
-   border-color: rgba(124, 92, 255, 0.8);
+body.voice-ui-active .voice-control-button.cancel {
+  background-color: rgba(234, 67, 53, 0.7); /* Red tint */
+  border-color: rgba(234, 67, 53, 0.6);
+}
+body.voice-ui-active .voice-control-button.cancel:hover {
+  background-color: rgba(234, 67, 53, 0.9);
+}
+
+body.voice-ui-active .voice-control-button.mic {
+  /* Style for mic button if needed */
+}
+body.voice-ui-active .voice-control-button.mic.active {
+   background-color: rgba(124, 92, 255, 0.7); /* Purple tint when active */
+   border-color: rgba(124, 92, 255, 0.6);
+   animation: pulse 1.5s infinite; /* Pulse animation */
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(124, 92, 255, 0.5); }
+  70% { box-shadow: 0 0 0 10px rgba(124, 92, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(124, 92, 255, 0); }
 }
