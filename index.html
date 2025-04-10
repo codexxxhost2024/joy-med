@@ -3,65 +3,280 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Make sure title is appropriate -->
-    <title>Joy - Voice Assistant</title>
+    <title>Joy - Simplified Voice (Merged)</title>
+    <!-- Using Material Symbols for icons -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" />
-    <!-- We will heavily modify or replace style.css -->
-    <link rel="stylesheet" href="css/style.css">
-    <!-- Add a new CSS file for the voice UI styles, or modify style.css heavily -->
-    <link rel="stylesheet" href="css/voice-ui-style.css">
+    <!-- Using Plus Jakarta Sans font -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" />
+
+    <style>
+        /* Base Styles & Reset */
+        * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+        }
+
+        html,
+        body {
+          width: 100%;
+          height: 100%;
+          overflow: hidden; /* Prevent scrollbars on the main view */
+          font-family: "Plus Jakarta Sans", sans-serif;
+          background-color: #ffffff; /* White background */
+          color: #555555; /* Default text color */
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Initial Connect Button Styles */
+        .initial-connect {
+          position: fixed;
+          top: 20px; /* Adjust spacing from top */
+          right: 20px; /* Adjust spacing from right */
+          display: inline-flex; /* Use inline-flex for content alignment */
+          align-items: center;
+          gap: 8px;
+          padding: 10px 20px;
+          background-color: #4a4a4a; /* Dark grey background */
+          color: #ffffff; /* White text/icon */
+          border: none;
+          border-radius: 25px; /* Rounded corners */
+          font-size: 1rem;
+          font-weight: 500;
+          cursor: pointer;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+          transition: background-color 0.3s ease, transform 0.2s ease;
+          z-index: 10; /* Ensure it's above voice UI initially if overlapping */
+        }
+
+        .initial-connect:hover {
+          background-color: #606060; /* Lighter grey on hover */
+        }
+
+        .initial-connect:active {
+          transform: scale(0.97);
+        }
+
+        .initial-connect .material-symbols-outlined {
+          font-size: 1.2rem;
+          display: block; /* Helps with vertical alignment */
+        }
+
+
+        /* Simplified Voice Interface Container */
+        #voice-interface-simple {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: #ffffff; /* Ensure white background */
+          display: flex;
+          flex-direction: column;
+          align-items: center; /* Center horizontally */
+          justify-content: space-between; /* Pushes visualizer area up, button down */
+          padding: 80px 20px 40px 20px; /* Top padding, side padding, bottom padding */
+          opacity: 0;
+          visibility: hidden;
+          transition: opacity 0.3s ease, visibility 0s 0.3s; /* Fade transition */
+          z-index: 5; /* Below connect button initially */
+        }
+
+        /* Class to show the voice interface */
+        #voice-interface-simple:not(.hidden) {
+          opacity: 1;
+          visibility: visible;
+          transition-delay: 0s;
+        }
+
+        /* Area for visualizer and text */
+        .visualizer-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1; /* Takes up available space */
+            width: 100%;
+            margin-bottom: 20px; /* Space above the stop button */
+        }
+
+        /* Large Circular Visualizer */
+        #output-voice-visualizer-simple {
+          width: 200px; /* Adjust size as needed */
+          height: 200px;
+          border-radius: 50%;
+          /* Soft blue/purple gradient matching the image */
+          background: radial-gradient(circle, rgba(170, 190, 255, 0.8) 0%, rgba(190, 180, 255, 0.7) 50%, rgba(210, 200, 255, 0.6) 100%);
+          /* Subtle outer glow effect */
+          box-shadow: 0 0 40px rgba(180, 200, 255, 0.5), 0 0 60px rgba(200, 190, 255, 0.3);
+          /* Basic breathing animation (can be enhanced with JS) */
+          animation: simple-breath 5s ease-in-out infinite;
+          margin-bottom: 30px; /* Space between visualizer and text */
+        }
+
+        @keyframes simple-breath {
+          0%, 100% { transform: scale(1); opacity: 0.9; }
+          50% { transform: scale(1.04); opacity: 1; }
+        }
+
+        /* Add .speaking class via JS for more dynamic scaling */
+        #output-voice-visualizer-simple.speaking {
+          /* Example: transform: scale(1.1); - Requires JS */
+        }
+
+        /* Listening Status Text */
+        #listening-status-text-simple {
+          font-size: 1.1rem;
+          color: #888888; /* Grey color */
+          font-weight: 400;
+        }
+
+        /* Stop Button */
+        .voice-control-button-simple.stop {
+          width: 64px; /* Size of the button */
+          height: 64px;
+          border-radius: 50%;
+          border: none;
+          background-color: #F87171; /* Coral/red color from image */
+          color: #ffffff; /* White 'X' icon */
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: background-color 0.3s ease, transform 0.2s ease;
+          box-shadow: 0 5px 15px rgba(248, 113, 113, 0.4);
+        }
+
+        .voice-control-button-simple.stop:hover {
+          background-color: #EF5353; /* Slightly darker red on hover */
+        }
+
+        .voice-control-button-simple.stop:active {
+          transform: scale(0.95);
+        }
+
+        .voice-control-button-simple.stop .material-symbols-outlined {
+          font-size: 30px;
+          font-weight: 600; /* Make the X thicker */
+        }
+
+        /* Utility class to hide elements */
+        .hidden {
+          display: none !important; /* Simple way to hide initially */
+        }
+
+        /* Logic for showing/hiding Connect button vs Voice UI */
+        /* When voice is active, hide the connect button */
+        body.voice-active .initial-connect {
+            display: none;
+        }
+
+        /* When voice is active, show the voice interface */
+        body.voice-active #voice-interface-simple {
+            opacity: 1;
+            visibility: visible;
+            transition-delay: 0s; /* Ensure immediate transition */
+            z-index: 20; /* Bring voice UI to front */
+        }
+
+        /* Redefine .hidden for transition purposes if using body class */
+        #voice-interface-simple.hidden {
+          opacity: 0;
+          visibility: hidden;
+          pointer-events: none;
+        }
+
+        /* Material Symbols Base Style */
+        .material-symbols-outlined {
+          font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24;
+           vertical-align: middle; /* Align icons better with text */
+        }
+
+        /* Responsive Adjustments (Optional - Design is simple) */
+        @media (max-width: 400px) {
+            #output-voice-visualizer-simple {
+                width: 160px;
+                height: 160px;
+            }
+
+            .voice-control-button-simple.stop {
+                width: 56px;
+                height: 56px;
+            }
+
+             .voice-control-button-simple.stop .material-symbols-outlined {
+                font-size: 26px;
+             }
+
+             #listening-status-text-simple {
+                font-size: 1rem;
+             }
+
+            #voice-interface-simple {
+                padding: 60px 15px 30px 15px;
+            }
+        }
+    </style>
+
 </head>
-<!-- Add a class to body to help target styles -->
-<body class="voice-ui-active">
-    <div id="app">
-        <!-- Timer (Will be positioned with CSS) -->
-        <div id="voice-timer" class="voice-timer-display">00:00 / 00:00</div>
+<body>
 
-        <!-- Connect Button (Will be positioned with CSS) -->
-        <!-- We take it out of the original header for easier positioning -->
-        <button id="connect-button" class="primary-button voice-ui-connect">
-            <span class="material-symbols-outlined">wifi</span>
-            <span>Connect</span>
+    <!-- Initial Connect Button (Shows first) -->
+    <button id="initial-connect-button" class="initial-connect">
+        <span class="material-symbols-outlined">wifi</span>
+        <span>Connect</span>
+    </button>
+
+    <!-- Main Voice Interaction UI (Initially Hidden) -->
+    <div id="voice-interface-simple" class="hidden">
+        <!-- Area for the visualizer and status text -->
+        <div class="visualizer-area">
+             <div id="output-voice-visualizer-simple">
+                 <!-- Gradient/effects handled by CSS -->
+             </div>
+             <span id="listening-status-text-simple">Listening...</span>
+        </div>
+
+        <!-- Centered Stop Button -->
+        <button id="voice-stop-button-simple" class="voice-control-button-simple stop" title="Stop">
+            <span class="material-symbols-outlined">close</span>
         </button>
-
-        <!-- Central Area -->
-        <div class="voice-ui-center">
-            <div id="voice-visualizer-circle" class="visualizer-circle">
-                <!-- This could potentially contain or be linked to your audio visualizer logic -->
-            </div>
-            <div id="voice-status-text" class="status-text">Listening...</div>
-        </div>
-
-        <!-- Bottom Controls -->
-        <div class="voice-ui-controls">
-            <button id="voice-settings-button" class="icon-button voice-control-button">
-                <span class="material-symbols-outlined">tune</span> <!-- Settings Icon -->
-            </button>
-            <button id="voice-cancel-button" class="icon-button voice-control-button cancel">
-                <span class="material-symbols-outlined">close</span> <!-- Cancel Icon -->
-            </button>
-            <!-- IMPORTANT: Keep the original mic button ID for JS functionality -->
-            <button id="mic-button" class="icon-button voice-control-button mic">
-                <span id="mic-icon" class="material-symbols-outlined">mic</span> <!-- Mic Icon -->
-            </button>
-        </div>
-
-        <!-- Keep Original Hidden Elements if needed for JS, hide with CSS -->
-        <div style="display: none;">
-            <!-- Put the original header, config panel, main content, etc. here -->
-            <!-- This ensures JS targeting them doesn't break, but they aren't visible -->
-            <header class="app-header">...</header>
-            <div id="config-container">...</div>
-            <main class="main-content">...</main>
-            <div id="video-container">...</div>
-            <div id="screen-container">...</div>
-        </div>
-
     </div>
-    <!-- Keep your original JS file -->
-    <script src="js/main.js" type="module"></script>
-    <!-- You might need a small JS script to update the timer/status -->
-    <script src="js/voice-ui-update.js"></script>
+
+    <!-- Simplified JS link - functionality needs complete rewrite -->
+    <!-- <script src="js/main.js" type="module"></script> -->
+     <!-- Add your JS logic here or link to main.js -->
+     <script type="module">
+        // Basic JS to toggle the view for testing
+        const connectButton = document.getElementById('initial-connect-button');
+        const stopButton = document.getElementById('voice-stop-button-simple');
+        const voiceInterface = document.getElementById('voice-interface-simple');
+
+        connectButton.addEventListener('click', () => {
+            document.body.classList.add('voice-active');
+            // voiceInterface.classList.remove('hidden'); // Handled by body class now
+            console.log("Connect clicked - showing voice interface");
+        });
+
+        stopButton.addEventListener('click', () => {
+            document.body.classList.remove('voice-active');
+            // voiceInterface.classList.add('hidden'); // Handled by body class now
+            console.log("Stop clicked - hiding voice interface");
+        });
+
+        // --- Placeholder for future functionality ---
+        // - Connect/disconnect logic
+        // - Start/stop microphone
+        // - Web Audio API for visualizer updates
+        // - Update status text dynamically
+        // --------------------------------------------
+
+     </script>
+
 </body>
 </html>
