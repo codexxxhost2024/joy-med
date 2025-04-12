@@ -4,7 +4,7 @@ export const CONFIG = {
         KEY: "AIzaSyCAvikMyrIpgNfkoccJQtUMkzk6ZTfZMCw",
         BASE_URL: "wss://generativelanguage.googleapis.com/ws",
         VERSION: "v1alpha",
-        MODEL_NAME: "models/gemini-2.0-flash-exp",
+        MODEL_NAME: "models/gemini-2.0-flash-thinking-exp-01-21",
     },
     SYSTEM_INSTRUCTION: {
         // --- CONDENSED SYSTEM INSTRUCTION ---
