@@ -1,10 +1,10 @@
 export const CONFIG = {
     API: {
         // WARNING: Hardcoded API Key. Secure this properly.
-        KEY: "AIzaSyCAvikMyrIpgNfkoccJQtUMkzk6ZTfZMCw",
-        BASE_URL: "wss://generativelanguage.googleapis.com/ws",
-        VERSION: "v1alpha",
-        MODEL_NAME: "models/gemini-2.0-flash-exp",
+        KEY: "AIzaSyCAvikMyrIpgNfkoccJQtUMkzk6ZTfZMCw", // Still using the hardcoded key from your example
+        BASE_URL: "wss://generativelanguage.googleapis.com/ws", // Assuming this WebSocket URL is still desired
+        VERSION: "v1beta", // Updated to match the REST API version from the script
+        MODEL_NAME: "models/gemini-2.0-flash", // <<< UPDATED MODEL NAME HERE
     },
     SYSTEM_INSTRUCTION: {
         // --- HIGHLY FOCUSED SYSTEM INSTRUCTION ---
