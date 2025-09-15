@@ -4,7 +4,7 @@ export const CONFIG = {
         KEY: "AIzaSyCAvikMyrIpgNfkoccJQtUMkzk6ZTfZMCw", // Still using the hardcoded key from your example
         BASE_URL: "wss://generativelanguage.googleapis.com/ws", // Assuming this WebSocket URL is still desired
         VERSION: "v1beta", // Updated to match the REST API version from the script
-        MODEL_NAME: "models/gemini-2.0-flash-live-001"
+        MODEL_NAME: "models/gemini-2.5-flash-preview-native-audio-dialog"
     },
     SYSTEM_INSTRUCTION: {
         // --- HIGHLY FOCUSED SYSTEM INSTRUCTION ---
