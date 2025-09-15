@@ -2,12 +2,13 @@
 // Security: do NOT hardcode your API key. Use an environment variable.
 
 export const CONFIG = {
-  API: {
-    KEY: process.env.GEMINI_API_KEY || "<SET_GEMINI_API_KEY_IN_ENV>",
-    BASE_URL: "wss://generativelanguage.googleapis.com/ws",
-    VERSION: "v1beta",
-    MODEL_NAME: "models/gemini-2.5-flash-preview-native-audio-dialog",
-  },
+    API: {
+        // WARNING: Hardcoded API Key. Secure this properly.
+        KEY: "AIzaSyCAvikMyrIpgNfkoccJQtUMkzk6ZTfZMCw", // Still using the hardcoded key from your example
+        BASE_URL: "wss://generativelanguage.googleapis.com/ws", // Assuming this WebSocket URL is still desired
+        VERSION: "v1beta", // Updated to match the REST API version from the script
+        MODEL_NAME: "models/gemini-2.5-flash-preview-native-audio-dialog"
+    },
 
   // --- SYSTEM INSTRUCTION (Persona) ---
   SYSTEM_INSTRUCTION: {
